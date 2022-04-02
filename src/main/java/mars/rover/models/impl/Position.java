@@ -1,5 +1,7 @@
 package mars.rover.models.impl;
 
+import mars.rover.models.IAction;
+import mars.rover.models.IPlateau;
 import mars.rover.models.IPosition;
 
 public class Position implements IPosition {
@@ -22,22 +24,31 @@ public class Position implements IPosition {
     }
 
     @Override
-    public IPosition move(String steps) {
-        steps = steps.trim();
-        steps.chars().mapToObj(i -> Character.valueOf((char)i))
-                .forEach(character -> {
-            if('M' == character){
-                if(this.getHeading().equals(Direction.N) || this.getHeading().equals(Direction.S)) {
-                    this.setyPosition(this.getHeading().equals(Direction.N)  ? this.getyPosition() + 1 : this.getyPosition() - 1);
-                } else {
-                    this.setxPosition(this.getHeading().equals(Direction.E)  ? this.getxPosition() + 1 : this.getxPosition() - 1);
-                }
-            } else {
+    public IPosition move(IAction action, IPlateau plateau) {
+        String steps = action.getActions().trim();
+        steps.chars().mapToObj(i -> Character.valueOf((char)i)).forEach(character -> {
+            if ('M' != character) {
                 this.turnRover(this.getHeading(), 'R' == character);
+            } else if(checkRoverOnTheEdge(plateau)){
+                System.out.println("Rover is on the edge and cannot go any further!");
+            } else {
+                if(this.getHeading().equals(Direction.N) || this.getHeading().equals(Direction.S)) {
+                    this.setYposition(this.getHeading().equals(Direction.N)  ? this.getYposition() + 1 : this.getYposition() - 1);
+                } else {
+                    this.setXposition(this.getHeading().equals(Direction.E)  ? this.getXposition() + 1 : this.getXposition() - 1);
+                }
             }
         });
         return this;
     }
+
+    private boolean checkRoverOnTheEdge(IPlateau plateau) {
+        return (this.getHeading().equals(Direction.N) && (this.getYposition() == plateau.getWidth()))
+                || (this.getHeading().equals(Direction.S) && (this.getYposition() == 0))
+                || (this.getHeading().equals(Direction.E) && (this.getXposition() == plateau.getLength()))
+                || (this.getHeading().equals(Direction.W) && (this.getXposition() == 0));
+    }
+
 
     private void turnRover(Direction direction, boolean right) {
         switch (direction){
@@ -60,22 +71,25 @@ public class Position implements IPosition {
         }
     }
 
-    public int getxPosition() {
+    @Override
+    public int getXposition() {
         return xPosition;
     }
 
-    public void setxPosition(int xPosition) {
+    public void setXposition(int xPosition) {
         this.xPosition = xPosition;
     }
 
-    public int getyPosition() {
+    @Override
+    public int getYposition() {
         return yPosition;
     }
 
-    public void setyPosition(int yPosition) {
+    public void setYposition(int yPosition) {
         this.yPosition = yPosition;
     }
 
+    @Override
     public Direction getHeading() {
         return heading;
     }
