@@ -1,4 +1,12 @@
-.classpath
-.project
-.settings/
+!.gitignore
+
 target/
+.idea/
+*.iml
+.DS_Store
+
+# eclipse
+.settings/
+.project
+.classpath
+/bin/
